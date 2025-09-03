@@ -1,0 +1,11 @@
+tensorflow>=2.9.0
+keras
+numpy
+pandas
+scikit-learn
+matplotlib
+ipython
+keras-tuner
+# Pyfhel must be built on Linux; prefer building inside Docker. Use version compatible with the notebook.
+Pyfhel==2.3.1
+pyyaml
