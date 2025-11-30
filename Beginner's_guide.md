@@ -166,11 +166,48 @@ MedSecureFL augments FL and HE with SMPC protocols, precluding participant collu
 ## Part 3: The Repository's Mission – Secure Medical Image Analysis
 
 MedSecureFL prototypes a fortified AI conduit for radiographic scrutiny, emphasizing:
-- **Research Innovation**: An bespoke FL variant, buttressed by HE, resilient to inference assaults (e.g., model inversion extracting exemplars from gradients via
--     $$
--     \(\hat{x} = \arg\min_x \| \nabla L(\theta, x) - g \|\)
--     $$,
-- where g denotes pilfered gradient).
+**Research Innovation** (explained for everyone):
+
+- This repository introduces a **custom version of federated learning** that is protected end-to-end by **homomorphic encryption (HE)**.  
+  Thanks to the encryption, the system is **immune to inference attacks** — the scariest privacy leaks that exist in normal federated learning.
+
+**The most famous attack it blocks: Model-Inversion Attack**
+
+An attacker steals the tiny updates (gradients) a hospital sends and tries to reconstruct the original patient X-ray from them.
+
+The attacker solves this mathematical puzzle:
+
+$$
+\hat{x} = \arg\min_x \ \| \nabla L(\theta, x) - g \|^2
+$$
+
+**Plain-English translation of every symbol:**
+| Symbol          | What it really means                              |
+|-----------------|----------------------------------------------------|
+| $\hat{x}$       | the attacker’s reconstructed X-ray (their guess) |
+| $x$             | a fake image the attacker is trying out           |
+| $\nabla L(\theta, x)$ | the gradient the model would produce if it had actually seen image $x$ |
+| $g$             | the real gradient the hospital sent (the stolen data) |
+| $\| \ldots \|^2$ | “how different” two sets of numbers are          |
+
+The attacker keeps guessing different fake X-rays until the gradient from the fake image exactly matches the stolen gradient $g$. When that happens, the fake image is actually the real patient X-ray.
+
+**Why this attack completely fails in MedSecureFL**
+
+The hospital never sends the real $g$.  
+It only sends the **fully encrypted** version: $Enc(g)$.
+
+So the attacker’s equation becomes:
+
+$$
+\hat{x} = \arg\min_x \ \| \nabla L(\theta, x) - Enc(g) \|^2
+$$
+
+That’s like trying to match a clear fingerprint with a fingerprint that’s still inside a locked safe — impossible.  
+The attacker only gets random-looking encrypted garbage, so the reconstructed image $\hat{x}$ is pure noise. The real patient X-ray stays 100% private, no matter how smart the attacker is.
+
+**Bottom line**  
+MedSecureFL is one of the very few practical systems that makes model-inversion attacks (and many other gradient-leak attacks) mathematically impossible — while still delivering a useful medical AI. That’s the big research contribution of this repository.
   
 - **Practical Demonstration**: Deployment on PneumoniaMNIST (binary thoracic pathology classifier), juxtaposing efficacy against cryptographic surcharge.
 - **Educational Accessibility**: Sequenced Jupyter orchestration for didactic traversal, apt for academicians probing privacy-preserving ML.
