@@ -99,15 +99,44 @@ In MedSecureFL, these Δw values are encrypted before being sent to the server, 
 
 *(This graph delineates iterative client-curator interplay, underscoring weighted synthesis.)*
 
-### Homomorphic Encryption (HE): Computing on Locked Data
-Homomorphic encryption authorizes algebraic manipulations upon enciphered operands sans antecedent decryption, perpetuating opacity across the computational continuum. Predicated on lattice cryptography (e.g., CKKS scheme in Pyfhel), it underwrites additive and multiplicative homomorphisms: Enc(a) + Enc(b) = Enc(a + b); Enc(a) × Enc(b) = Enc(a × b).
+### Homomorphic Encryption (HE): Doing Math on Secret Data
 
-- **Analogy**: Analogous to ledger arithmetic on padlocked ledgers—summate ciphered quanta, and the resultant decrypts veraciously.
-- **Repository Role**: Enciphers radiographic pixels and parametric vectors, facilitating cipher-domain gradient averaging (e.g., \(\sum\) Enc(\(\Delta w_k\)) = Enc(\(\sum \Delta w_k\))), with decryption confined to terminal aggregates.
+**Simple definition**  
+Homomorphic encryption lets you **add or multiply numbers while they are still encrypted** — and when you finally decrypt the result, you get exactly the same answer as if you had done the math on the original (unencrypted) numbers.
 
-**Mathematical Elucidation with Example**: In CKKS, plaintexts \(m\) embed within polynomials modulo a ring \(R = \mathbb{Z}[X]/(X^d + 1)\), encrypted via public key \(pk\). Encryption: \(ct = (u \cdot s + e + \Delta m, u)\), where \(s\) is secret, \(e\) noise, \(\Delta\) scaling. Addition: \(ct_1 + ct_2 = Enc(m_1 + m_2)\), noise accrues linearly.
+**Real-world analogy everyone understands**  
+Imagine two locked safes:
+- Safe A contains the number 5
+- Safe B contains the number 3  
+You give both locked safes to someone else. That person **adds the two safes together** without ever opening them. When you later open the resulting safe, it correctly contains 8.  
+That’s exactly what homomorphic encryption — the “someone else” is the central server in MedSecureFL.
 
-  **Example**: Encrypt weights \(w_1 = 0.5\), \(w_2 = 0.3\): Enc(0.5) + Enc(0.3) = Enc(0.8). Decrypt yields 0.8 ± ε (noise ε ≈ 10^{-6}). In MedSecureFL, fractional encoding (via `encryptFrac`) accommodates CNN weights (e.g., [-1,1] range), averting overflow.
+**What the repository actually does with it**  
+In MedSecureFL, every hospital encrypts its model updates (those tiny Δw numbers like 0.02, −0.01, etc.) before sending them.
+
+Because of homomorphic encryption, the central server can:
+- **Add** all the encrypted updates together → still encrypted
+- **Divide** by the number of hospitals → still encrypted  
+When the server sends the final encrypted result back, each hospital decrypts it and gets the correct new global model — **without anyone ever seeing anyone else’s private patient data or even the plain updates**.
+
+**Super simple numerical example (the only math you need to know)**
+
+| Hospital | Local update (Δw) | Encrypted version sent |
+|----------|-------------------|------------------------|
+| Hospital 1 | +0.02             | Enc(0.02)              |
+| Hospital 2 | −0.01             | Enc(−0.01)             |
+| Hospital 3 | +0.015            | Enc(0.015)             |
+
+Server does (still encrypted):  
+`Enc(0.02) + Enc(−0.01) + Enc(0.Concurrent015) = Enc(0.025)`
+
+Only at the very end is it decrypted → correct average = **0.00833**  
+No hospital ever saw anyone else’s numbers, and the server never saw anything in plaintext.
+
+**Why Pyfhel 2.3.1 is required**  
+The library used in the repo (Pyfhel) implements a version of homomorphic encryption called **CKKS** that is perfect for decimal numbers (like neural-network weights). Newer versions of Pyfhel changed some internal names, so the notebook only works with the exact version 2.3.1.
+
+That’s all the complicated formulas you saw earlier were just the long way of saying the same simple idea above.
 
 **Repository Implementation Insight**: Pyfhel 2.3.1 instantiates CKKS with parameter 'm' (cyclotomic order, e.g., m=8192 for 13-bit precision). Code snippet from `FLPyfhelin.py`:
   ```python
