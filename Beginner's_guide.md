@@ -40,12 +40,42 @@ Federated learning manifests as a decentralized optimization paradigm wherein di
 **Refined Mermaid Graph: FL Aggregation Dynamics**  
 ```mermaid
 graph TD
-    C1["Client 1<br/>Local Train: n_1=1000<br/>Δw_1 = [0.02, -0.01]"] -->|Enc(Δw_1)| Cur["Curator<br/>w_{t+1} = Σ (n_k/N) · w_k"]
-    C2["Client 2<br/>Local Train: n_2=800<br/>Δw_2 = [0.015, -0.005]"] -->|Enc(Δw_2)| Cur
-    Cur --> G["Global Model<br/>w_{t+1} (Decrypted)"] --> C1
-    Cur --> G --> C2
-    style Cur fill:#ff9
+    %% Clients
+    Client1["Client 1<br/>• 1,000 local samples<br/>• Computes Δw₁ = [0.02, -0.01]"]
+    Client2["Client 2<br/>• 800 local samples<br/>• Computes Δw₂ = [0.015, -0.005]"]
+    Client3["Client 3<br/>• Local training"]
+    Client4["Client 4<br/>• Local training"]
+
+    %% Server
+    Server["Central Server / Curator<br/>Performs secure aggregation:<br/>wₜ₊₁ = Σ (nₖ/N) × wₖ<br/>(all operations on encrypted data)"]
+
+    %% Upload encrypted updates
+    Client1 -->|Encrypted model update| Server
+    Client2 -->|Encrypted model update| Server
+    Client3 -->|Encrypted model update| Server
+    Client4 -->|Encrypted model update| Server
+
+    %% Broadcast new global model
+    Server -->|New global model| Client1
+    Server -->|New global model| Client2
+    Server -->|New global model| Client3
+    Server -->|New global model| Client4
+
+    %% Styling
+    style Server fill:#fff3e0,stroke:#f57c00,stroke-width:4px,color:#000
+    style Client1 fill:#e8f5e8
+    style Client2 fill:#e8f5e8
+    style Client3 fill:#e8f5e8
+    style Client4 fill:#e8f5e8
 ```
+Explanation of the numbers (Δw values):
+
+Δw₁ = [0.02, -0.01] and Δw₂ = [0.015, -0.005] are tiny changes (updates) that each client computes for just two example weights of the neural network after training on its own private data for one round.
+Positive values (e.g., +0.02) mean “increase this weight a little”.
+Negative values (e.g., -0.01) mean “decrease this weight a little”.
+These are highly simplified toy examples used only for illustration — a real model has millions of weights, but the idea is exactly the same.
+In MedSecureFL, these Δw values are encrypted before being sent to the server, so the server can average them (thanks to homomorphic encryption) without ever seeing the actual numbers or the patients’ images.
+
 *(This graph delineates iterative client-curator interplay, underscoring weighted synthesis.)*
 
 ### Homomorphic Encryption (HE): Computing on Locked Data
