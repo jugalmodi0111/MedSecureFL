@@ -25,13 +25,34 @@ Envisage a consortium of three regional hospitals endeavoring to augment pneumon
 ## Part 2: Core Technologies – Federated Learning and Homomorphic Encryption
 
 ### Federated Learning (FL): Collaborative Without Sharing
-Federated learning manifests as a decentralized optimization paradigm wherein disparate entities (e.g., edge devices or institutional servers) synergize toward a communal model sans raw data interchange. Exclusively parametric ephemera—succinct mathematical encapsulations of discerned motifs—are disseminated for central synthesis.
 
-- **Operational Mechanics**: Participants engender localized model replicas on proprietary datasets, derive updates (e.g., gradient vectors), and remit these to a curator for amalgamation. The archetypal algorithm, FedAvg (Federated Averaging), formalizes this as:
-  \[
-  w_{t+1} = \sum_{k=1}^{K} \frac{n_k}{N} w_{k,t+1}
-  \]
-  Here, \(w_{t+1}\) denotes the global model weights at iteration \(t+1\); \(K\) signifies client count; \(n_k\) the dataset cardinality of client \(k\); \(N = \sum n_k\) the aggregate scale; and \(w_{k,t+1}\) the localized weights post-update. This weighted mean preserves equity proportional to data volume.
+Federated learning is a distributed training method where multiple parties (e.g., hospitals) contribute to a shared model **without ever sending raw patient data**. Only model updates — small mathematical summaries of what was learned — are sent to a central server for averaging.
+
+**Operational Mechanics**  
+Each hospital trains a copy of the model on its own private data, computes an update (typically the gradient or weight change), and sends only that update to a central coordinator.
+
+The most common algorithm is **FedAvg (Federated Averaging)**, defined as:
+
+$$
+w_{t+1} = \sum_{k=1}^{K} \frac{n_k}{N} \, w_{k,t+1}
+$$
+
+Where:
+- $ w_{t+1} $ → global model weights after round $ t+1 $
+- $ K $ → total number of clients (e.g., 4 hospitals)
+- $ n_k $ → number of training samples at client $ k $
+- $ N = \sum n_k $ → total number of samples across all clients
+- $ w_{k,t+1} $ → local model weights from client $ k $ after its training round
+
+This is simply a **weighted average** — clients with more data have slightly more influence, which is fair and statistically sound.
+
+**Simple numerical example (2 clients only):
+- Client 1 has 1,000 samples → weight = 1000/1800 ≈ 0.556  
+- Client 2 has 800 samples   → weight = 800/1800   ≈ 0.444  
+
+→ Final global update = (0.556 × Client 1’s model) + (.444 × Client 2’s model)
+
+In MedSecureFL, **these updates are encrypted** using homomorphic encryption before leaving the hospital, so the server performs the entire weighted average **in the encrypted domain** and never sees individual patient data or even the plain updates.
 
 - **Healthcare Salience**: Institutions uphold data dominion—crucial for regulatory adherence—whilst harnessing amalgamated acumen, mitigating silos that attenuate model robustness.
 
