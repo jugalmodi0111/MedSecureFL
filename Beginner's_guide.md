@@ -166,7 +166,12 @@ MedSecureFL augments FL and HE with SMPC protocols, precluding participant collu
 ## Part 3: The Repository's Mission – Secure Medical Image Analysis
 
 MedSecureFL prototypes a fortified AI conduit for radiographic scrutiny, emphasizing:
-- **Research Innovation**: An bespoke FL variant, buttressed by HE, resilient to inference assaults (e.g., model inversion extracting exemplars from gradients via \(\hat{x} = \arg\min_x \| \nabla L(\theta, x) - g \|\), where g denotes pilfered gradient).
+- **Research Innovation**: An bespoke FL variant, buttressed by HE, resilient to inference assaults (e.g., model inversion extracting exemplars from gradients via
+-     $$
+-     \(\hat{x} = \arg\min_x \| \nabla L(\theta, x) - g \|\)
+-     $$,
+- where g denotes pilfered gradient).
+  
 - **Practical Demonstration**: Deployment on PneumoniaMNIST (binary thoracic pathology classifier), juxtaposing efficacy against cryptographic surcharge.
 - **Educational Accessibility**: Sequenced Jupyter orchestration for didactic traversal, apt for academicians probing privacy-preserving ML.
 
