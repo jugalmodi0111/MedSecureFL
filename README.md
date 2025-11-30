@@ -5,3 +5,6 @@ Encrypted FL Main-Rel.ipynb is the main implementation run with Jupyter Notebook
 FLPyfhelin.py contains required method to run the implementation
 
 Note that we're using Pyfhel 2.3.1 while the current /latest version as of June 2022 is Pyfhel 3.1.4. We noticed that there's difference on parameter name. In verions 2.3.1 parameter 'm' is refered to 'n' in version 3.1.4. So the key generation function will fail when you try to run it with Pyfhel 3.1.4.
+
+
+https://github.com/jugalmodi0111/MedSecureFL/issues/1#issue-3678280731
